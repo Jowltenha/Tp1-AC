@@ -29,6 +29,8 @@ for ((i=0; i<total; i++)); do
   n=$((n+1))
   ARGS=(-p "$P" --model sonnet --output-format json --allowedTools "$TOOLS")
   [[ -n "$SID" ]] && ARGS+=(--resume "$SID")
+  [[ -z "$SID" && -n "${NOME_SESSAO:-}" ]] && ARGS+=(-n "$NOME_SESSAO")
+  [[ -z "$SID" && -n "${RETOMAR:-}" ]] && ARGS+=(--resume "$RETOMAR")
   OUT=$(cd "$PROJ" && "$CL" "${ARGS[@]}" 2>/dev/null)
   SID=$(echo "$OUT" | python3 -I -c 'import sys,json;print(json.load(sys.stdin)["session_id"])')
   RES=$(echo "$OUT" | python3 -I -c 'import sys,json;d=json.load(sys.stdin);print(d.get("result",""))')

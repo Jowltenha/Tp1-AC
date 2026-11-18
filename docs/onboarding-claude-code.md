@@ -32,7 +32,7 @@ O Claude Code não é um autocomplete. Ele é um agente que lê o repositório, 
 | Claude Code instalado | CLI 2.1.260 (Windows/npm) e 2.1.281 (extensão VS Code no WSL) | `claude --version` retornou `2.1.281 (Claude Code)` |
 | Repositório Git do serviço | `TP1-AC/`, com `README.md` inicial | `git log` mostra os commits do TP |
 | Sessão real funcionando | headless `claude -p` na pasta do projeto | Pedido "liste os arquivos da pasta config" respondido com uma chamada de ferramenta: *"A pasta `config` tem dois arquivos: `horarios-manha.json` e `horarios-tarde.json`."* |
-| Permissões do projeto | `.claude/settings.json` | `allow` para testes e `git diff/status/log`; `ask` para migração e commit; `deny` para `--aplicar`, `git push` e `.env` |
+| Permissões do projeto | `.claude/settings.json` | `allow` para testes, `git diff/status/log` e edição em `backend/`; `ask` para migração, commit e edição de `config/`, das specs e dos módulos existentes; `deny` para `--aplicar`, `git push`, acesso à web e `.env`. Na primeira execução, a CLI avisou que ignora `allow` em pasta não confiável ("this workspace has not been trusted"). Por isso é preciso aceitar o *trust dialog* uma vez, de forma interativa |
 | Skill do projeto | `.claude/skills/revisar-spec/SKILL.md` | A skill aparece na lista de skills disponíveis da sessão |
 | Subagente do projeto | `.claude/agents/revisor-spec.md` | Só tem ferramentas de leitura e de teste; não pode editar |
 | Testes do projeto | `backend/tests/` | `python3 -m unittest discover -s backend/tests -t backend`: `Ran 7 tests ... OK` |

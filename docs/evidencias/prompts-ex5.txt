@@ -1,0 +1,7 @@
+Bug relatado pela recepção: na sexta-feira 20/11/2026 não aparece nenhum horário de consulta à tarde. Vamos investigar em etapas. Nesta primeira etapa leia SOMENTE @config/horarios-manha.json e me diga quais dias e qual faixa de horário ele cobre. Não abra nenhum outro arquivo de config ainda e não levante hipóteses sobre a tarde.
+---
+/context
+---
+Agora traga @config/horarios-tarde.json. Monte uma tabela comparando os dois arquivos chave a chave (nome da chave, tipo e valor em cada arquivo) e explique, com base no conteúdo real, por que a sexta-feira à tarde não tem horários.
+---
+Isso é bug de código ou de configuração? Confirme olhando como @backend/agendamento/disponibilidade.py interpreta dias_semana. Proponha a correção (diff) sem aplicar, porque alterar config em uso exige aprovação humana.

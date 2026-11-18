@@ -6,17 +6,36 @@
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
-      "Bash(python3 relatorios/relatorio_ocupacao.py*)"
+      "Bash(python3 relatorios/relatorio_ocupacao.py*)",
+      "Edit(backend/agendamento/**)",
+      "Edit(backend/tests/**)",
+      "Write(backend/agendamento/**)",
+      "Write(backend/tests/**)"
     ],
     "ask": [
       "Bash(python3 scripts/migracao/*)",
-      "Bash(git commit*)"
+      "Bash(git commit*)",
+      "Edit(backend/agendamento/disponibilidade.py)",
+      "Edit(backend/agendamento/validacao_config.py)",
+      "Edit(backend/tests/test_modulos.py)",
+      "Edit(backend/tests/test_validacao_config.py)",
+      "Edit(config/**)",
+      "Edit(SPEC.md)",
+      "Edit(specs/**)",
+      "Edit(AGENT.md)",
+      "Edit(TASK.md)",
+      "Edit(TOOLS.md)",
+      "Edit(.claude/**)"
     ],
     "deny": [
       "Bash(* --aplicar*)",
       "Bash(git push*)",
+      "WebFetch",
+      "WebSearch",
       "Read(./.env)",
-      "Read(./.env.*)"
+      "Read(./.env.*)",
+      "Grep(./.env*)",
+      "Edit(./.env*)"
     ]
   }
 }
