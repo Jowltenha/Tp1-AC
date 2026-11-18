@@ -1,0 +1,15 @@
+test_normaliza_os_dois_formatos (tests.test_modulos.TestDisponibilidade.test_normaliza_os_dois_formatos) ... ok
+test_pausa_da_tarde_e_respeitada (tests.test_modulos.TestDisponibilidade.test_pausa_da_tarde_e_respeitada) ... ok
+test_reservar_e_liberar (tests.test_modulos.TestDisponibilidade.test_reservar_e_liberar) ... ok
+test_sexta_so_tem_manha (tests.test_modulos.TestDisponibilidade.test_sexta_so_tem_manha) ... ok
+test_confirmacao (tests.test_modulos.TestNotificacao.test_confirmacao) ... ok
+test_cadastro_duplicado (tests.test_modulos.TestPacientes.test_cadastro_duplicado) ... ok
+test_cpf (tests.test_modulos.TestPacientes.test_cpf) ... ok
+test_arquivos_reais_de_config_sao_validos (tests.test_validacao_config.TestValidarTurno.test_arquivos_reais_de_config_sao_validos) ... ok
+test_horario_malformado_na_tarde (tests.test_validacao_config.TestValidarTurno.test_horario_malformado_na_tarde) ... ok
+test_turno_invalido_acumula_erros (tests.test_validacao_config.TestValidarTurno.test_turno_invalido_acumula_erros) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.004s
+
+OK

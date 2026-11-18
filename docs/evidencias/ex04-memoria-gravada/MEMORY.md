@@ -1,0 +1,1 @@
+- [Formatos dos turnos em config/](project_formato_turnos_config.md) — horarios-*.json têm 2 formatos (manhã e tarde); usar normalizar_turno

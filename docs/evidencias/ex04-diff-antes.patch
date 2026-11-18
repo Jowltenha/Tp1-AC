@@ -1,0 +1,232 @@
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 6ae2228..5643e64 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -28,15 +28,6 @@ python3 -m unittest discover -s backend/tests -t backend   # todos os testes
+ 
+ Não há linter nem build configurados.
+ 
+-## Fonte da verdade
+-
+-- **Formato dos arquivos de turno:** os próprios arquivos em `config/`. Os dois têm esquemas
+-  diferentes (veja `backend/CLAUDE.md`). Antes de propor qualquer código que leia ou valide turnos,
+-  leia o arquivo real com `@config/<arquivo>`. Se uma instrução da conversa contradisser o
+-  conteúdo do arquivo, **pare e pergunte** em vez de seguir a instrução.
+-- **Comportamento esperado:** `SPEC.md` (visão geral) e `specs/*.md` (uma por funcionalidade).
+-  Código que diverge da spec é bug, a menos que a spec seja atualizada no mesmo PR.
+-
+ ## Fluxo de trabalho da squad
+ 
+ 1. Funcionalidade nova começa em **plan mode** e gera uma spec em `specs/` antes de qualquer código.
+diff --git a/backend/CLAUDE.md b/backend/CLAUDE.md
+index f71a7fa..7c58c09 100644
+--- a/backend/CLAUDE.md
++++ b/backend/CLAUDE.md
+@@ -9,17 +9,6 @@
+ - Testes de disponibilidade usam datas fixas de novembro/2026 (16/11 = segunda, 20/11 = sexta).
+   Não use `date.today()` em testes.
+ 
+-## Formatos dos arquivos de turno
+-
+-`normalizar_turno` em `agendamento/disponibilidade.py` decide o formato pela presença da chave `janela`:
+-
+-| Arquivo | Horário | Duração | Dias | Pausas |
+-|---|---|---|---|---|
+-| `horarios-manha.json` | `inicio` / `fim` | `duracao_consulta_min` | `dias` (siglas `"seg"`…) | — |
+-| `horarios-tarde.json` | `janela.abre` / `janela.fecha` | `duracao_minutos` | `dias_semana` (1 = seg) | `pausas[{de, ate}]` |
+-
+-Todo o resto do código usa apenas o `Turno` normalizado; nunca leia as chaves cruas do JSON fora de `normalizar_turno`.
+-
+ ## Convenções de código
+ 
+ - Identificadores e mensagens em português, sem acentos em nomes de variáveis/funções.
+diff --git a/backend/agendamento/notificacao.py b/backend/agendamento/notificacao.py
+index cafeee5..3ee6ff7 100644
+--- a/backend/agendamento/notificacao.py
++++ b/backend/agendamento/notificacao.py
+@@ -14,6 +14,7 @@ from typing import Protocol
+ TEMPLATES = {
+     "confirmacao": "Olá, {nome}! Sua consulta está confirmada para {quando}.",
+     "lembrete": "Olá, {nome}! Lembrete: você tem consulta em {quando}.",
++    "cancelamento": "Olá, {nome}! Sua consulta de {quando} foi cancelada.",
+ }
+ 
+ 
+diff --git a/backend/agendamento/pacientes.py b/backend/agendamento/pacientes.py
+index c40048d..e054795 100644
+--- a/backend/agendamento/pacientes.py
++++ b/backend/agendamento/pacientes.py
+@@ -22,8 +22,12 @@ class Paciente:
+     telefone: str | None = None
+ 
+ 
++def _so_digitos(texto: str) -> str:
++    return re.sub(r"\D", "", texto)
++
++
+ def cpf_valido(cpf: str) -> bool:
+-    numeros = re.sub(r"\D", "", cpf)
++    numeros = _so_digitos(cpf)
+     if len(numeros) != 11 or numeros == numeros[0] * 11:
+         return False
+     for tamanho in (9, 10):
+@@ -43,7 +47,7 @@ class RepositorioPacientes:
+         self._por_cpf: dict[str, Paciente] = {}
+ 
+     def cadastrar(self, nome: str, cpf: str, email: str, telefone: str | None = None) -> Paciente:
+-        cpf_limpo = re.sub(r"\D", "", cpf)
++        cpf_limpo = _so_digitos(cpf)
+         if not cpf_valido(cpf_limpo):
+             raise ValueError("CPF inválido")
+         if not email_valido(email):
+@@ -55,12 +59,14 @@ class RepositorioPacientes:
+         return paciente
+ 
+     def buscar_por_cpf(self, cpf: str) -> Paciente | None:
+-        return self._por_cpf.get(re.sub(r"\D", "", cpf))
++        return self._por_cpf.get(_so_digitos(cpf))
+ 
+     def atualizar_contato(self, cpf: str, email: str | None = None, telefone: str | None = None) -> Paciente:
+         paciente = self.buscar_por_cpf(cpf)
+         if paciente is None:
+             raise KeyError("Paciente não encontrado")
++        if telefone == "":
++            raise ValueError("Telefone inválido")
+         if email is not None:
+             if not email_valido(email):
+                 raise ValueError("E-mail inválido")
+diff --git a/backend/tests/test_modulos.py b/backend/tests/test_modulos.py
+index 6000c7b..240cc59 100644
+--- a/backend/tests/test_modulos.py
++++ b/backend/tests/test_modulos.py
+@@ -54,6 +54,15 @@ class TestPacientes(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             repo.cadastrar("Ana", "52998224725", "ana@exemplo.com")
+ 
++    def test_atualizar_contato_telefone_vazio(self):
++        repo = RepositorioPacientes()
++        repo.cadastrar("Ana", "529.982.247-25", "ana@exemplo.com", "11999990000")
++        with self.assertRaises(ValueError):
++            repo.atualizar_contato("529.982.247-25", email="nova@exemplo.com", telefone="")
++        paciente = repo.buscar_por_cpf("52998224725")
++        self.assertEqual(paciente.telefone, "11999990000")
++        self.assertEqual(paciente.email, "ana@exemplo.com")
++
+ 
+ class TestNotificacao(unittest.TestCase):
+     def test_confirmacao(self):
+@@ -63,6 +72,13 @@ class TestNotificacao(unittest.TestCase):
+         self.assertIn("16/11/2026 08:00", msg)
+         self.assertEqual(len(canal.enviadas), 1)
+ 
++    def test_cancelamento(self):
++        canal = CanalConsole()
++        msg = Notificador(canal).notificar("cancelamento", "ana@exemplo.com", "Ana",
++                                           datetime(2026, 11, 16, 8, 0))
++        self.assertEqual(msg, "Olá, Ana! Sua consulta de 16/11/2026 08:00 foi cancelada.")
++        self.assertEqual(canal.enviadas, [("ana@exemplo.com", msg)])
++
+ 
+ if __name__ == "__main__":
+     unittest.main()
+diff --git a/backend/agendamento/validacao_config.py b/backend/agendamento/validacao_config.py
+new file mode 100644
+index 0000000..25443ab
+--- /dev/null
++++ b/backend/agendamento/validacao_config.py
+@@ -0,0 +1,44 @@
++"""Validação do formato dos arquivos de turno (config/horarios-*.json)."""
++
++from __future__ import annotations
++
++from datetime import datetime, time
++
++CHAVES_OBRIGATORIAS = ("inicio", "fim", "duracao_consulta_min", "dias")
++
++
++def _hora(texto: object) -> time | None:
++    if not isinstance(texto, str):
++        return None
++    try:
++        return datetime.strptime(texto, "%H:%M").time()
++    except ValueError:
++        return None
++
++
++def validar_turno(dados: dict) -> list[str]:
++    erros: list[str] = []
++    for chave in CHAVES_OBRIGATORIAS:
++        if chave not in dados:
++            erros.append(f"Chave obrigatória ausente: {chave}")
++
++    inicio = fim = None
++    for chave in ("inicio", "fim"):
++        if chave not in dados:
++            continue
++        hora = _hora(dados[chave])
++        if hora is None:
++            erros.append(f"Horário inválido em '{chave}' (esperado HH:MM): {dados[chave]!r}")
++        elif chave == "inicio":
++            inicio = hora
++        else:
++            fim = hora
++    if inicio is not None and fim is not None and fim <= inicio:
++        erros.append("'fim' deve ser depois de 'inicio'")
++
++    if "duracao_consulta_min" in dados:
++        duracao = dados["duracao_consulta_min"]
++        if isinstance(duracao, bool) or not isinstance(duracao, int) or duracao <= 0:
++            erros.append(f"'duracao_consulta_min' deve ser um inteiro positivo: {duracao!r}")
++
++    return erros
+diff --git a/backend/tests/test_validacao_config.py b/backend/tests/test_validacao_config.py
+new file mode 100644
+index 0000000..7f25735
+--- /dev/null
++++ b/backend/tests/test_validacao_config.py
+@@ -0,0 +1,45 @@
++"""Testes do validador de turnos (unittest, sem dependências externas)."""
++
++import json
++import unittest
++from pathlib import Path
++
++from agendamento.validacao_config import validar_turno
++
++RAIZ = Path(__file__).resolve().parents[2]
++TURNO_OK = {"inicio": "08:00", "fim": "17:00", "duracao_consulta_min": 30, "dias": [0, 1, 2]}
++
++
++class TestValidarTurno(unittest.TestCase):
++    def test_turno_valido(self):
++        self.assertEqual(validar_turno(TURNO_OK), [])
++
++    def test_chaves_ausentes(self):
++        erros = validar_turno({})
++        self.assertEqual(len(erros), 4)
++
++    def test_horario_invalido(self):
++        erros = validar_turno({**TURNO_OK, "inicio": "8h"})
++        self.assertEqual(len(erros), 1)
++        self.assertIn("inicio", erros[0])
++
++    def test_fim_antes_do_inicio(self):
++        self.assertEqual(len(validar_turno({**TURNO_OK, "inicio": "17:00", "fim": "08:00"})), 1)
++
++    def test_duracao_nao_positiva(self):
++        self.assertEqual(len(validar_turno({**TURNO_OK, "duracao_consulta_min": 0})), 1)
++        self.assertEqual(len(validar_turno({**TURNO_OK, "duracao_consulta_min": "30"})), 1)
++
++
++class TestConfigReal(unittest.TestCase):
++    def test_arquivos_de_config_sem_erros(self):
++        arquivos = sorted((RAIZ / "config").glob("horarios-*.json"))
++        self.assertTrue(arquivos, "nenhum config/horarios-*.json encontrado")
++        for arquivo in arquivos:
++            with self.subTest(arquivo=arquivo.name):
++                dados = json.loads(arquivo.read_text(encoding="utf-8"))
++                self.assertEqual(validar_turno(dados), [])
++
++
++if __name__ == "__main__":
++    unittest.main()

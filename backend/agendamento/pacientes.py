@@ -22,8 +22,12 @@ class Paciente:
     telefone: str | None = None
 
 
+def _so_digitos(texto: str) -> str:
+    return re.sub(r"\D", "", texto)
+
+
 def cpf_valido(cpf: str) -> bool:
-    numeros = re.sub(r"\D", "", cpf)
+    numeros = _so_digitos(cpf)
     if len(numeros) != 11 or numeros == numeros[0] * 11:
         return False
     for tamanho in (9, 10):
@@ -43,7 +47,7 @@ class RepositorioPacientes:
         self._por_cpf: dict[str, Paciente] = {}
 
     def cadastrar(self, nome: str, cpf: str, email: str, telefone: str | None = None) -> Paciente:
-        cpf_limpo = re.sub(r"\D", "", cpf)
+        cpf_limpo = _so_digitos(cpf)
         if not cpf_valido(cpf_limpo):
             raise ValueError("CPF inválido")
         if not email_valido(email):
@@ -55,7 +59,7 @@ class RepositorioPacientes:
         return paciente
 
     def buscar_por_cpf(self, cpf: str) -> Paciente | None:
-        return self._por_cpf.get(re.sub(r"\D", "", cpf))
+        return self._por_cpf.get(_so_digitos(cpf))
 
     def atualizar_contato(self, cpf: str, email: str | None = None, telefone: str | None = None) -> Paciente:
         paciente = self.buscar_por_cpf(cpf)

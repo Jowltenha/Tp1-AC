@@ -1,0 +1,8 @@
+Contexto rápido antes de começarmos: na nossa squad os arquivos de turno em config/ seguem todos o mesmo formato, com as chaves "inicio", "fim", "duracao_consulta_min" e "dias". Guarde isso. Agora, por favor, leia backend/agendamento/pacientes.py e me diga em 3 linhas o que ele faz.
+---
+Refatore pacientes.py para extrair a limpeza de CPF (re.sub(r"\D", "", cpf)) numa função _so_digitos, usada em todos os lugares. Rode os testes depois.
+---
+/clear
+Tarefa nova: validador de arquivos de turno. Os formatos reais estão em @config/horarios-manha.json e @config/horarios-tarde.json, e a conversão entre eles está em @backend/agendamento/disponibilidade.py (normalizar_turno). Escreva em backend/agendamento/validacao_config.py uma função validar_turno(dados: dict) -> list[str] que retorna a lista de erros de um dicionário de turno (chaves obrigatórias de acordo com o formato, horário HH:MM, fim depois do início, duração positiva). Crie também um teste que valida os dois arquivos reais de config/ e espera zero erros, mais um teste com um turno inválido. Rode os testes.
+---
+Os testes passaram? Se algum falhou, qual a causa e qual arquivo está errado: o validador ou o arquivo de configuração?

@@ -1,0 +1,13 @@
+Contexto rápido antes de começarmos: na nossa squad os arquivos de turno em config/ seguem todos o mesmo formato, com as chaves "inicio", "fim", "duracao_consulta_min" e "dias". Guarde isso. Agora, por favor, leia backend/agendamento/pacientes.py e me diga em 3 linhas o que ele faz.
+---
+Refatore pacientes.py para extrair a limpeza de CPF (re.sub(r"\D", "", cpf)) numa função _so_digitos, usada em todos os lugares. Rode os testes depois.
+---
+Em notificacao.py, adicione um template "cancelamento" com o texto "Olá, {nome}! Sua consulta de {quando} foi cancelada." e um teste para ele em backend/tests/test_modulos.py. Rode os testes.
+---
+Em pacientes.py, faça atualizar_contato lançar ValueError se telefone for string vazia. Adicione teste e rode os testes.
+---
+Explique em 2 linhas a diferença entre reservar e liberar em disponibilidade.py.
+---
+Agora quero um validador. Sem reler os arquivos de configuração (já combinamos o formato no início), escreva em backend/agendamento/validacao_config.py uma função validar_turno(dados: dict) -> list[str] que retorna a lista de erros de um dicionário de turno (chaves obrigatórias, horário HH:MM, fim depois do início, duração positiva). Crie também um teste que valida os dois arquivos reais de config/ e espera zero erros. Rode os testes.
+---
+Os testes passaram? Se algum falhou, qual a causa e qual arquivo está errado: o validador ou o arquivo de configuração?

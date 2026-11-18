@@ -1,0 +1,24 @@
+.........F.....
+======================================================================
+FAIL: test_arquivos_de_config_sem_erros (tests.test_validacao_config.TestConfigReal.test_arquivos_de_config_sem_erros) (arquivo='horarios-tarde.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/ex4-antes/backend/tests/test_validacao_config.py", line 41, in test_arquivos_de_config_sem_erros
+    self.assertEqual(validar_turno(dados), [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['Chave obrigatória ausente: inicio', 'Cha[110 chars]ias'] != []
+
+First list contains 4 additional elements.
+First extra element 0:
+'Chave obrigatória ausente: inicio'
+
++ []
+- ['Chave obrigatória ausente: inicio',
+-  'Chave obrigatória ausente: fim',
+-  'Chave obrigatória ausente: duracao_consulta_min',
+-  'Chave obrigatória ausente: dias']
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.004s
+
+FAILED (failures=1)
