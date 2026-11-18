@@ -1,0 +1,7 @@
+{
+  "turno": "tarde",
+  "janela": { "abre": "13:30", "fecha": "18:00" },
+  "duracao_minutos": 45,
+  "dias_semana": [1, 2, 3, 4],
+  "pausas": [{ "de": "15:45", "ate": "16:00" }]
+}

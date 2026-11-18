@@ -1,0 +1,7 @@
+{
+  "turno": "manha",
+  "inicio": "08:00",
+  "fim": "12:00",
+  "duracao_consulta_min": 30,
+  "dias": ["seg", "ter", "qua", "qui", "sex"]
+}
